@@ -1,12 +1,11 @@
 import time as t
 
-import streamlit as st
-
 
 class NQueen:
     def __init__(self):
         self.count = 0
         self.k = 1
+        self.solutions = []  # List to store all solutions
 
     @staticmethod
     def place(arr, pos):
@@ -16,7 +15,7 @@ class NQueen:
         return True
 
     def print_sol(self, arr, n):
-        print(f"\nSolution #{self.count}:")
+        solution = []
         for i in range(1, n + 1):
             line = ""
             for j in range(1, n + 1):
@@ -24,24 +23,19 @@ class NQueen:
                     line += "Q\t"
                 else:
                     line += "*\t"
-            print(line)
+            solution.append(line)
+        self.solutions.append(solution)
 
     @staticmethod
-    def print_sol_in_markdown(arr, n):
+    def print_sol_in_markdown(solution):
         markdown = '```'
         markdown += '\n'
-        for i in range(1, n + 1):
-            line = ""
-            for j in range(1, n + 1):
-                if arr[i] == j:
-                    line += "Q\t"
-                else:
-                    line += "#\t"
-            markdown += line + '\n'
+        for line in solution:
+            markdown += line.replace("*", "#") + '\n'
         markdown += '```'
         return markdown
 
-    def queen(self, n, board_parent: st.container = None, analysis_parent: st.container = None):
+    def queen(self, n):
         start = t.time() * 1000
         arr = [0] * (n + 1)
         arr[self.k] = 0
@@ -53,14 +47,7 @@ class NQueen:
 
             if arr[self.k] <= n:
                 if self.k == n:
-                    if board_parent is not None:
-                        with board_parent:
-                            with st.expander(f"Solution #{self.count + 1}",
-                                             expanded=True if self.count == 0 else False):
-                                st.subheader(f"Solution #{self.count + 1}:")
-                                st.markdown(self.print_sol_in_markdown(arr, n), unsafe_allow_html=True)
-                    else:
-                        self.print_sol(arr, n)
+                    self.print_sol(arr, n)
                     self.count += 1
                 else:
                     self.k += 1
@@ -70,11 +57,27 @@ class NQueen:
         end = t.time() * 1000
         diff = end - start
         time = f'Time taken: {round(diff)} milliseconds' if diff < 1000 else f'Time taken: {round(diff / 1000)} seconds'
-        if analysis_parent is not None:
-            with analysis_parent:
-                st.write(f'Total solution: {self.count}')
-                st.write(time)
+        return self.solutions, time  # Return solutions and time taken
+        # if analysis_parent is not None:
+        #     with analysis_parent:
+        #         st.write(f'Total solutions: {self.count}')
+        #         st.write(time)
+        #
+        # if board_parent:
+        #     for i, solution in enumerate(self.solutions, start=1):
+        #         if board_parent is not None:
+        #             with board_parent:
+        #                 with st.expander(f"Solution #{i}", expanded=True if i == 1 else False):
+        #                     st.subheader(f"Solution #{i}:")
+        #                     st.markdown(self.print_sol_in_markdown(self.solutions[-1]), unsafe_allow_html=True)
+        # else:
+        #     for i, solution in enumerate(self.solutions, start=1):
+        #         print(f"Solution #{i}:")
+        #         for line in solution:
+        #             print(line)
+        #         print()
+        #     print(f'Total time taken : {time}')
 
 
 if __name__ == '__main__':
-    NQueen().queen(12)
+    NQueen().queen(8)
