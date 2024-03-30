@@ -39,22 +39,35 @@ def solve_and_display(n, board_parent, analysis_parent):
 
     if analysis_parent is not None:
         with analysis_parent:
-            st.write(f'Total solutions: {count}')
+            st.write(f'Total solutions: {(len(solutions))}')
             st.write(time_str)
 
     if board_parent:
-        for i, solution in enumerate(solutions, start=1):
-            if board_parent is not None:
-                with board_parent:
-                    with st.expander(f"Solution #{i}", expanded=True if i == 1 else False):
-                        st.subheader(f"Solution #{i}:")
-                        st.markdown(NQueen.print_sol_in_markdown(solution), unsafe_allow_html=True)
+        if len(solutions) == 0:
+            with board_parent:
+                st.write("No solutions found")
+            return
+        if len(solutions) <= 100:
+            for i, solution in enumerate(solutions, start=1):
+                if board_parent is not None:
+                    with board_parent:
+                        with st.expander(f"Solution #{i}", expanded=True if i == 1 else False):
+                            st.subheader(f"Solution #{i}:")
+                            st.markdown(NQueen.print_sol_in_markdown(solution), unsafe_allow_html=True)
+        else:
+            st.write(f"Total solutions: {len(solutions)}")
+            for i, solution in enumerate(solutions[:100], start=1):
+                if board_parent is not None:
+                    with board_parent:
+                        with st.expander(f"Solution #{i}", expanded=True if i == 1 else False):
+                            st.subheader(f"Solution #{i}:")
+                            st.markdown(NQueen.print_sol_in_markdown(solution), unsafe_allow_html=True)
 
 
+board_container, analysis_container = st.columns(2)
 with main_container:
     board_size = st.slider('Select the number of queens', min_value=4, max_value=16, step=4)
     st.write(f'You selected {board_size} queens')
     st.markdown(print_board_in_markdown(board_size), unsafe_allow_html=True)
-    board_container, analysis_container = st.columns(2)
     if st.button("Solve"):
         run_solver(board_size, board_container, analysis_container)
